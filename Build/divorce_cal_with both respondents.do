@@ -1,25 +1,62 @@
 
-//convert wide form to long form
-//this is just an example 
- 
+*Author: Angela Jiang 
+*Input Data: Rand HRS file randhrs1992_2018v2.dta
+*Output file: 
+*Written on a mac 
+
+*This dofile prepares the rand file for duration model analysis. 
+
+
 clear 
 
-use "/Users/bubbles/Desktop/HRS/randhrs1992_2018v2_STATA/randhrs1992_2018v2.dta", clear
+version 17.0
+
+cap log close 
+
+set more off 
+
+set seed 0102
 
 
-keep hhidpn *hhid hacohort *mstat *mpart *mrct *mstath *mdiv *iwstat *agey_e //keep the variables of interest, so that it doesn't become too slow
+cd "/Users/bubbles/Desktop/MarriageCare/Data/randhrs1992_2018v2_STATA"
+
+log using clean.log, text replace 
+
+use randhrs1992_2018v2.dta, clear
 
 
-reshape long  r@mstat r@mpart r@mrct r@mstath r@mdiv r@iwstat r@agey_e s@mstat s@mpart s@mrct s@mstath s@mdiv s@iwstat s@agey_e h@hhid, i(hhidpn) j(wave)
+//define the cohorts and initial waves 
 
-xtset hhidpn wave
+local HRS 3 
+local CODA 2
+local WB 4
+local EBB 5
+local MBB 6 
+local LBB 7 
 
-keep if hacohort ==5 //CHANGE THIS to cohort
+local HRS_init 1 
+local CODA_init 4 
+local WB_init 4
+local EBB_init 7 
+local MBB_init 10 
+local LBB_init 13
+
+//
 
 
-by hhidpn (wave), sort: keep if rmstat[7]==1 | rmstat[7]==2 //CHANGE THIS for initial cohort starting point. Keep initially married. cohort 3 with wave 1, cohort 5 with wave 7, cohort 6 with wave 10.
+keep if hacohort == `EBB'  //uses the cohorts we are interested in 
 
-drop if wave <7 //no need to have those earlier waves people were not surveyed yet 
+keep hhidpn *hhid hacohort *mstat *mpart *mrct *mstath *mdiv *iwstat *agey_e //keep only the variables of interest, so that it doesn't become too slow
+
+
+reshape long  r@mstat r@mpart r@mrct r@mstath r@mdiv r@iwstat r@agey_e s@mstat s@mpart s@mrct s@mstath s@mdiv s@iwstat s@agey_e h@hhid, i(hhidpn) j(wave) //reshape from wide to long 
+
+xtset hhidpn wave //set as panel 
+
+
+by hhidpn (wave), sort: keep if rmstat[`EBB_init']==1 | rmstat[`EBB_init']==2 //CHANGE THIS for initial cohort starting point. Keep initially married. cohort 3 with wave 1, cohort 5 with wave 7, cohort 6 with wave 10.
+
+drop if wave < `EBB_init' //no need to have those earlier waves people were not surveyed yet 
 
 
 
@@ -62,7 +99,7 @@ gen sep_this_period=(rmstat==4)
 
 gen diff=married - sep_this_period //
 
-gen m_change = F.diff - diff
+by hhidpn (wave), sort: gen m_change = F.diff - diff
 
 bysort hhidpn: egen m_back= max(m_change) //a move back 
 
