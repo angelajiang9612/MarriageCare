@@ -46,10 +46,9 @@ local LBB_init 13
 
 keep if hacohort == `EBB'  //uses the cohorts we are interested in 
 
-keep hhidpn *hhid hacohort *mstat *mpart *mrct *mstath *mdiv *iwstat *agey_e //keep only the variables of interest, so that it doesn't become too slow
+keep hhidpn hacohort *hhid *famr *finr *mstat *mpart *mrct *mstath *mdiv *iwstat *agey_e inw* *pickhh //keep only the variables of interest, so that it doesn't become too slow
 
-
-reshape long  r@mstat r@mpart r@mrct r@mstath r@mdiv r@iwstat r@agey_e s@mstat s@mpart s@mrct s@mstath s@mdiv s@iwstat s@agey_e h@hhid, i(hhidpn) j(wave) //reshape from wide to long 
+reshape long  r@mstat r@mpart r@mrct r@mstath r@mdiv r@iwstat r@agey_e r@famr r@finr s@famr s@finr s@mstat s@mpart s@mrct s@mstath s@mdiv s@iwstat s@agey_e h@hhid h@pickhh inw@, i(hhidpn) j(wave) //reshape from wide to long 
 
 xtset hhidpn wave //set as panel 
 
