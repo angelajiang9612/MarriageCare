@@ -44,10 +44,10 @@ local LBB_init 13
 //
 
 
-keep if hacohort == `EBB'  //uses the cohorts we are interested in 
+keep if hacohort == `HRS'  //uses the cohorts we are interested in 
 
 
-keep if h`EBB_init'pickhh ==1  // keep only one of the household members in the initial wave interviewed. This is more optimal than just randomly picking a spouse, but does not resolve the issue with them dropping out of the sample while their partner stays in the sample. Defined this way it is not possible for smstat to be available when rmstat is not available. 
+keep if h`HRS_init'pickhh ==1  // keep only one of the household members in the initial wave interviewed. This is more optimal than just randomly picking a spouse, but does not resolve the issue with them dropping out of the sample while their partner stays in the sample. Defined this way it is not possible for smstat to be available when rmstat is not available. 
 
 
 keep hhidpn hacohort *hhid *famr *finr *mstat *mpart *mrct *mstath *mdiv *iwstat *agey_e inw* *pickhh *mwid //keep only the variables of interest, so that it doesn't become too slow
@@ -57,9 +57,9 @@ reshape long  r@mstat r@mpart r@mrct r@mstath r@mdiv r@iwstat r@agey_e r@famr r@
 xtset hhidpn wave //set as panel 
 
 
-by hhidpn (wave), sort: keep if rmstat[`EBB_init']==1 | rmstat[`EBB_init']==2 //CHANGE THIS for initial cohort starting point. Keep initially married.
+by hhidpn (wave), sort: keep if rmstat[`HRS_init']==1 | rmstat[`HRS_init']==2 //CHANGE THIS for initial cohort starting point. Keep initially married.
 
-drop if wave < `EBB_init' //no need to have those earlier waves people were not surveyed yet 
+drop if wave < `HRS_init' //no need to have those earlier waves people were not surveyed yet 
 
 
 ////////////////////////////////////////////////////////////////////
@@ -221,12 +221,6 @@ tabdisp rmr, c(distinct)
 
 drop tag 
 drop distinct
-
-
-
-
-
-//need to check the attrition stuff
 
 
 
