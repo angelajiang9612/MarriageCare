@@ -1,10 +1,26 @@
 
 //convert wide form to long form
- 
+
+//This is the initial one I presented to John. It just randomly dropped one of the people in the relationship. 
  
 clear 
 
-use "/Users/bubbles/Desktop/HRS/randhrs1992_2018v2_STATA/randhrs1992_2018v2.dta", clear
+version 17.0
+
+cap log close 
+
+set more off 
+
+set seed 0102
+
+
+
+cd "/Users/bubbles/Desktop/MarriageCare/Data/randhrs1992_2018v2_STATA"
+
+log using clean.log, text replace 
+
+use randhrs1992_2018v2.dta, clear
+
 
 sort h4hhid //CHANGE THIS TO INITIAL  //right now randomly keeping the spouse to keep, but should keep the more responsive one or something like that. 
   
