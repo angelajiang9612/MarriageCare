@@ -45,7 +45,7 @@ local MBB_init 10
 local LBB_init 13
 
 
-keep if hacohort == `HRS'  //uses the cohorts we are interested in 
+keep if hacohort == `LBB'  //uses the cohorts we are interested in 
 
 
 //keep if h`HRS_init'pickhh ==1  // keep only one of the household members in the initial wave interviewed. This is more optimal than just randomly picking a spouse, but does not resolve the issue with them dropping out of the sample while their partner stays in the sample. Defined this way it is not possible for smstat to be available when rmstat is not available. 
@@ -71,9 +71,9 @@ gen remarried=(remar>0)
 //Look at proportion of people overall that experienced a remarriage. 
 
 
-tab remarried if wave==`HRS_init' //This gives the proportion of the initial cohort that experienced an increase in marriage count (this includes cohabitators that got married in later waves)
+tab remarried if wave==`LBB_init' //This gives the proportion of the initial cohort that experienced an increase in marriage count (this includes cohabitators that got married in later waves)
 
-tab c_marriage, mi 
+//checking tab c_marriage, mi 
 
 
 //Counting the total number of remarriages. Can't just look at anyone that experienced an increase in marriage because we have cohabitation and things. 

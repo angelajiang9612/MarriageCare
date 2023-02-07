@@ -58,7 +58,7 @@ xtset hhidpn wave //set as panel
 
 //start with the initially singled people. 
 
-by hhidpn (wave), sort: keep if rmstat[`HRS_init']==4 | rmstat[`HRS_init']==5 | rmstat[`HRS_init']==7 |  rmstat[`HRS_init']==8  //singled if divorced, widowed or never married, or separated. 
+by hhidpn (wave), sort: keep if rmstat[`HRS_init']==5 | rmstat[`HRS_init']==7 |  rmstat[`HRS_init']==8  //singled if divorced, widowed or never married
 
 drop if wave < `HRS_init' //no need to have those earlier waves people were not surveyed yet 
 
