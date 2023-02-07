@@ -74,8 +74,6 @@ gen cohabitate_`HRS_init' = 1 if wave == `HRS_init' & rmstat == 3
 
 
 
-gen cohabitate_`HRS_init' = 1 if wave == `HRS_init' & rmstat == 3
-
 forvalues i = `HRS_sec'/`last' {
      gen cohabitate_`i' = 1 if wave == `i' & rmstat == 3 & rmstat[_n-1] != 3
 }
@@ -85,10 +83,24 @@ forvalues i = `HRS_sec'/`last' {
 
 keep if hpickhh==1 
 
-
-forvalues i = 1/12 {
+forvalues i = `HRS_init'/`last' {
      tab cohabitate_`i'
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
