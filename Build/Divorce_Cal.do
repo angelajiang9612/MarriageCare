@@ -4,7 +4,8 @@
 *Output file: 
 *Written on a mac 
 
-*This dofile prepares the rand file for duration model analysis. 
+*This dofile calculates the number of divorces in the HRS for different cohorts 
+*Need to change macros for different cohorts. 
 
 
 clear 
@@ -27,6 +28,7 @@ use randhrs1992_2018v2.dta, clear
 
 //define the cohorts and initial waves 
 
+local Ahead 1
 local HRS 3 
 local CODA 2
 local WB 4
@@ -35,19 +37,19 @@ local MBB 6
 local LBB 7 
 
 local HRS_init 1 
+local Ahead_init 2 
 local CODA_init 4 
 local WB_init 4
 local EBB_init 7 
 local MBB_init 10 
 local LBB_init 13
 
-//
+//The Ahead, CODA and LBB groups generally not used for this analysis. 
+
+keep if hacohort == `LBB'  //uses the cohorts we are interested in 
 
 
-keep if hacohort == `HRS'  //uses the cohorts we are interested in 
-
-
-keep if h`HRS_init'pickhh ==1  // keep only one of the household members in the initial wave interviewed. This is more optimal than just randomly picking a spouse, but does not resolve the issue with them dropping out of the sample while their partner stays in the sample. Defined this way it is not possible for smstat to be available when rmstat is not available. 
+keep if h`LBB_init'pickhh ==1  // keep only one of the household members in the initial wave interviewed. This is more optimal than just randomly picking a spouse, but does not resolve the issue with them dropping out of the sample while their partner stays in the sample. Defined this way it is not possible for smstat to be available when rmstat is not available. 
 
 
 keep hhidpn hacohort *hhid *famr *finr *mstat *mpart *mrct *mstath *mdiv *iwstat *agey_e inw* *pickhh *mwid //keep only the variables of interest, so that it doesn't become too slow
@@ -57,9 +59,9 @@ reshape long  r@mstat r@mpart r@mrct r@mstath r@mdiv r@iwstat r@agey_e r@famr r@
 xtset hhidpn wave //set as panel 
 
 
-by hhidpn (wave), sort: keep if rmstat[`HRS_init']==1 | rmstat[`HRS_init']==2 //CHANGE THIS for initial cohort starting point. Keep initially married.
+by hhidpn (wave), sort: keep if rmstat[`LBB_init']==1 | rmstat[`LBB_init']==2 //CHANGE THIS for initial cohort starting point. Keep initially married.
 
-drop if wave < `HRS_init' //no need to have those earlier waves people were not surveyed yet 
+drop if wave < `LBB_init' //no need to have those earlier waves people were not surveyed yet 
 
 
 ////////////////////////////////////////////////////////////////////
@@ -212,6 +214,32 @@ tabdisp rmr, c(distinct)
 
 
 
+
+//exporting out 
+
+est clear 
+cd "/Users/bubbles/Desktop/MarriageCare/Dofiles/Output"
+
+   
+estpost tab rmr if wave== `LBB_init' 
+
+esttab, cell("b pct(fmt(a))")  collab("Freq." "Percent") noobs nonumb nomtitle
+
+
+esttab using MBB_Init_Divorce.tex, replace ///
+cell("b pct(fmt(a))")  collab("Freq." "Percent") noobs nonumb nomtitle ///
+title(HRS Cohort Marriage Outcomes -2018)  /// 
+addnote(The HRS cohort was born 1948-53) //
+label booktabs ///
+
+
+
+
+
+
+
+
+
 //with attrition taken out 
 
 
@@ -219,6 +247,9 @@ drop if rmr==6
 tabdisp rmr, c(distinct)
 
 
+//display as table and then ouput 
+ 
+ 
 drop tag 
 drop distinct
 
