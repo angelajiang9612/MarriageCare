@@ -74,28 +74,121 @@ replace remar = 0 if missing(remar)
 gen remarried=(remar>0)
 
 
-//Look at proportion of people overall that experienced a remarriage. 
-
-//Can't just look at anyone that experienced an increase in marriage because we have cohabitation and things. 
+//Look at proportion of people overall that reported having a partner again at some point 
 
 
 
+gen partner =1 if rmstat==1 | rmstat==2 | rmstat==3 //this way of doing this underestimates repartnerships because people who have partnerships in between those waves are not recorded. Shorter partnerships are not recorded. 
 
+bysort hhidpn: egen repart=max(partner) 
 
+replace repart = 0 if missing(repart)
 
-
-
-
-
-
+gen repartnered=(repart>0)
 
 
 //ever experienced a cohabitation 
 
+gen cohabitate =1 if rmpart ==1
+
+bysort hhidpn: egen cohab=max(cohabitate) 
+
+replace cohab = 0 if missing(cohab)
+
+gen cohabitated = (cohab>0)
+
+
+//repartnered but not remarried 
+
+gen part_only =1 if remarried ==0 & repartnered==1
+replace part_only =0 if missing(part_only)
+
+
+///////////Reporting Results///////////////
+
+tab repartnered if wave == `HRS_init'
+tab remarried if wave == `HRS_init'
+tab part_only if wave == `HRS_init'
 
 
 
-//ever partnered again (cohabition or remarriage)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
