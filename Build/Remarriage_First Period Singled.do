@@ -29,6 +29,8 @@ use randhrs1992_2018v2.dta, clear
 
 //define the cohorts and initial waves 
 
+
+local Ahead 1
 local HRS 3 
 local CODA 2
 local WB 4
@@ -37,6 +39,7 @@ local MBB 6
 local LBB 7 
 
 local HRS_init 1 
+local Ahead_init 2 
 local CODA_init 4 
 local WB_init 4
 local EBB_init 7 
@@ -44,10 +47,12 @@ local MBB_init 10
 local LBB_init 13
 
 
-keep if hacohort == `HRS'  //uses the cohorts we are interested in 
 
 
-keep if h`HRS_init'pickhh ==1  // keep only one of the household members in the initial wave interviewed. This is more optimal than just randomly picking a spouse, but does not resolve the issue with them dropping out of the sample while their partner stays in the sample. Defined this way it is not possible for smstat to be available when rmstat is not available. 
+keep if hacohort == `WB'  //uses the cohorts we are interested in 
+
+
+keep if h`WB_init'pickhh ==1  // keep only one of the household members in the initial wave interviewed. This is more optimal than just randomly picking a spouse, but does not resolve the issue with them dropping out of the sample while their partner stays in the sample. Defined this way it is not possible for smstat to be available when rmstat is not available. 
 
 
 keep hhidpn hacohort *hhid *famr *finr *mstat *mpart *mrct *mstath *mdiv *iwstat *agey_e inw* *pickhh *mwid //keep only the variables of interest, so that it doesn't become too slow
@@ -58,9 +63,9 @@ xtset hhidpn wave //set as panel
 
 //start with the initially singled people. 
 
-by hhidpn (wave), sort: keep if rmstat[`HRS_init']==5 | rmstat[`HRS_init']==7 |  rmstat[`HRS_init']==8  //singled if divorced, widowed or never married
+by hhidpn (wave), sort: keep if rmstat[`WB_init']==5 | rmstat[`WB_init']==7 |  rmstat[`WB_init']==8  //singled if divorced, widowed or never married
 
-drop if wave < `HRS_init' //no need to have those earlier waves people were not surveyed yet 
+drop if wave < `WB_init' //no need to have those earlier waves people were not surveyed yet 
 
 
 //Look at proportion of initially single people who experienced a remarriage 
@@ -106,9 +111,9 @@ replace part_only =0 if missing(part_only)
 
 ///////////Reporting Results///////////////
 
-tab repartnered if wave == `HRS_init'
-tab remarried if wave == `HRS_init'
-tab part_only if wave == `HRS_init'
+tab repartnered if wave == `WB_init'
+tab remarried if wave == `WB_init'
+tab part_only if wave == `WB_init'
 
 
 
