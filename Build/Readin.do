@@ -26,7 +26,7 @@ foreach i in 02 04 06 08 10 12 14 16 {
 	
 	infile using "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/h`i'sta/H`i'G_R.dct"
 
-	rename HHID PN, lower 
+	rename HHID PN, lower //to match with 2018 
 
 	save "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h20`i'g_r.dta", replace
 
@@ -41,12 +41,49 @@ foreach i in 02 04 06 08 10 12 14 16 {
 	clear
 }
 
+*****************generate some missing variables for years that do not have a particular variable when the information exists for other years***************
 
 
+**The Anyone Else Help Question For ADLS 
+
+foreach i in 2002 2004 2006 2008 {
+	
+	use  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_r.dta", clear 
+	
+	//The ADL Anyone Else Helps Question 
+	
+	capture drop temp_G035_1 temp_G035_2 temp_G035_3 temp_G035_4 temp_G035_5 temp_G035_6 
+	gen temp_G035_1 =. 
+	gen temp_G035_2 =.
+	gen temp_G035_3 =.
+	gen temp_G035_4 =.
+	gen temp_G035_5 =. 
+	gen temp_G035_6 =.
+	
+	save  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_r.dta", replace  
+	
+	clear 
+}
 
 
+**The Anyone Else Help Question For IADLS 
 
-
+foreach i in 2002 2004 2006 2008 2010 {
+	
+	use  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_r.dta", clear 
+	//The IADL Anyone Else Helps Question 
+	
+    capture drop temp_G057_1 temp_G057_2 temp_G057_3 temp_G057_4 temp_G057_5
+	
+	gen temp_G057_1=.
+	gen temp_G057_2=.
+	gen temp_G057_3=.
+	gen temp_G057_4=.
+	gen temp_G057_5=.
+	
+	save  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_r.dta", replace  
+	
+}
 
 
 

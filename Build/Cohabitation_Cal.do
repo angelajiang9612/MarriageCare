@@ -18,7 +18,7 @@ set more off
 
 set seed 0102
 
-
+set maxvar 20000
 
 cd "/Users/bubbles/Desktop/MarriageCare/Data/randhrs1992_2018v2_STATA"
 
