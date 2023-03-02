@@ -1,10 +1,13 @@
-
 *Author: Angela Jiang 
-*Input Data: Rand HRS file randhrs1992_2018v2.dta
-*Output file: 
 *Written on a mac 
 
-*This dofile pick from Rand HRS variables that are useful for the summary statistics on informal and formal care by remarriage/cohabitation/singled. 
+*This dofile pick from Rand HRS variables that are useful for the summary statistics on informal and formal care by remarriage/cohabitation/singled. It then reshapes the chosen variables to get the final data in long form instead of short form. 
+*Only 2002-2018 years are used. 
+
+
+*Input Data:  randhrs1992_2018v2_STATA (Rand HRS File), wide form data original provided by RAND
+*Output files: temp/RAND.dta. Long form data with chosen useful variables. 
+
 
 
 clear 
@@ -19,6 +22,8 @@ set seed 0102
 
 
 cd "/Users/bubbles/Desktop/MarriageCare/Data/randhrs1992_2018v2_STATA"
+
+set maxvar 20000
 
 use randhrs1992_2018v2.dta, clear
 
@@ -41,11 +46,10 @@ local genvar r*famr r*finr h*pickhh r*iwstat
 
 //Other Covariates (Respondent and household) Constant Over Time 
 
-local rcovariates_c ragender raracem raeduc rarelig h*atotb h*itot 
-
+local rcovariates_c ragender raracem raeduc rarelig 
 //Other Covariates (Respondent and household) Changes Over Time 
 
-local rcovariates r*agey_b 
+local rcovariates r*agey_b h*atotb h*itot 
 
 //Other Covariates (Spouse)
 
@@ -77,12 +81,12 @@ local rIADLraw r*phone r*money r*meds r*shop r*meals // Raw record of IADLs
 
 local rIALDhelp r*phoneh r*moneyh r*medsh r*shoph r*mealsh // Gets help with each IADL
 
-local rIADLanylim r*phonea r*moneya r*medsa r*shopa r*mealsa // Binary Recoded Any limittation, includes don't do category 
+local rIADLanylim r*phonea r*moneya r*medsa r*shopa r*mealsa // Binary Recoded Any limittation, includes don't do category but don't do is not categorized as 1
 
 
 local rsum05  r*adl5a r*adl5h r*iadl5a r*iadl5h //total number of ADL/IADL 0-5, and total number of ADL/IADL received help for 0-5
 
-local rhelpamount r*hlprtn r*inhptn r*inhpe r*hlpdyst r*hlphrst //no, helpers & n0. helpers ever helped, institution ever helped, days&hours helped
+local rhelpamount r*hlprtn r*inhptn r*inhpe r*hlpdyst r*hlphrst //no helpers & n0. helpers ever helped, institution ever helped, days&hours helped
 
 local rhelppaid r*hlppdtn r*hlppdta //number of helpers paid and total amount paid. 
 
@@ -127,6 +131,8 @@ local snursinghome s*nhmliv //currently lives in a nursing home
 
 keep `genvar_c' `genvar' `rcovariates_c' `rcovariates' `scovariates' `rmarital' `smarital' `rflag' `rADLraw' `rADLhelp' `rADLanylim' `rIADLraw' `rIADLhelp' `rIADLanylim' `rsum05' `rhelpamount' `rhelppaid' `sflag' `sADLraw' `sADLhelp' `sADLanylim' `sIADLraw' `sIADLhelp' `sIADLanylim' `ssum05' `shelpamount' `shelppaid' `rnursinghome' `snursinghome'
 
+drop s*feduc s*meduc 
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 //Replace local variables in  way that allows them to be reshaped easily////////////
@@ -144,14 +150,13 @@ local genvar_c hhidpn hacohort
 local genvar r@famr r@finr h@pickhh r@iwstat 
 
 
-
 //Other Covariates (Respondent and household) Constant Over Time 
 
-local rcovariates_c ragender raracem raeduc rarelig h@atotb h@itot 
+local rcovariates_c ragender raracem raeduc rarelig 
 
 //Other Covariates (Respondent and household) Changes Over Time 
 
-local rcovariates r@agey_b 
+local rcovariates r@agey_b h@atotb h@itot 
 
 //Other Covariates (Spouse)
 
@@ -229,16 +234,15 @@ local snursinghome s@nhmliv //currently lives in a nursing home
 
 
 ///////////////////////////////////
-//need to exclide the ones that do not change with time the `genvar_c' and `rcovariates_c'
+//need to exclude the ones that do not change with time the `genvar_c' and `rcovariates_c'
 /////////////////////////////////// 
 
 
-reshape long `genvar' `rcovariates' `scovariates' `rmarital' `smarital' `rflag' `rADLraw' `rADLhelp' `rADLanylim' `rIADLraw' `rIADLhelp' `rIADLanylim' `rsum05' `rhelpamount' `rhelppaid' `sflag' `sADLraw' `sADLhelp' `sADLanylim' `sIADLraw' `sIADLhelp' `sIADLanylim' `ssum05' `shelpamount' `shelppaid' `rnursinghome' `snursinghome', i(hhidpn) j(wave) //reshape from wide to long 
+reshape long `genvar' `rcovariates' `scovariates' `rmarital' `smarital' `rflag' `rADLraw' `rADLhelp' `rADLanylim' `rIADLraw' `rIADLhelp' `rIADLanylim' `rsum05' `rhelpamount' `rhelppaid' `sflag' `sADLraw' `sADLhelp' `sADLanylim' `sIADLraw' `sIADLhelp' `sIADLanylim' `ssum05' `shelpamount' `shelppaid' `rnursinghome' `snursinghome', i(hhidpn) j(Wave) //reshape from wide to long 
 
 
 
-
-
+save "/Users/bubbles/Desktop/MarriageCare/Data/temp/RAND.dta", replace 
 
 
 
