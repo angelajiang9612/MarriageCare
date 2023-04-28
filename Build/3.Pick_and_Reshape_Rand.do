@@ -20,12 +20,9 @@ set more off
 
 set seed 0102
 
-
-cd "/Users/bubbles/Desktop/MarriageCare/Data/randhrs1992_2018v2_STATA"
-
 set maxvar 20000
 
-use randhrs1992_2018v2.dta, clear
+use "$data_path/randhrs1992_2018v2_STATA/randhrs1992_2018v2.dta", clear
 
 
 
@@ -242,7 +239,7 @@ reshape long `genvar' `rcovariates' `scovariates' `rmarital' `smarital' `rflag' 
 
 
 
-save "/Users/bubbles/Desktop/MarriageCare/Data/temp/RAND.dta", replace 
+save "$data_path/temp/RAND.dta", replace 
 
 
 

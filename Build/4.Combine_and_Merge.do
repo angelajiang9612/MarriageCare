@@ -21,15 +21,15 @@ set more off
 set seed 0102
 
 
-use  "/Users/bubbles/Desktop/MarriageCare/Data/temp/RAND.dta", clear
-merge 1:m hhidpn Wave using "/Users/bubbles/Desktop/MarriageCare/Data/temp/HRS_Raw_All_Waves.dta", force //1:m because the HRS raw has multiples of hhidpn and wave because of helpers 
+use  "$data_path/temp/RAND.dta", clear
+merge 1:m hhidpn Wave using "$data_path/temp/HRS_Raw_All_Waves.dta", force //1:m because the HRS raw has multiples of hhidpn and wave because of helpers 
 
 rename Wave wave 
 
 
 order hhidpn wave rmstat radl5a riadl5a radl5h riadl5h rhlprtn rhp_index rhp_iadl_ind rhp_adl_ind rhp_days_inmonth rhp_days_inweek rhp_everyday rhp_hrs rhp_sex rhp_paid rhp_gov_help rhp_private_cost rhp_pay_period radl* rhp_r* riadl* rihp_r*
 
-save "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Cleaned/HRS_combined", replace
+save "$data_path/HRS_Cleaned/HRS_combined", replace
 
 /*
 

@@ -6,7 +6,6 @@
 *Before running this dofile, need to first make changes in dtc files provided by HRS, in particualar change the file in path for the da files. 
 *The main file combines 2002-2018, this file also generate variables that are missing for some of the years 2002-2018 so that we do not have error for merger. 
 *Make adjustements to 2018 variables so they match the others (make some variables upper case)
-*In the future should also do the first couple of waves.   
 
 
 *Input Data: Rand HRS file randhrs1992_2018v2.dta
@@ -24,26 +23,27 @@ set more off
 
 set seed 0102
 
+global data_path "$folder_path/Data"
 *******************2002-2018*************** //earlier years informal care and helper questions exist but very differen 
 
-clear 
+
 
 
 foreach i in 02 04 06 08 10 12 14 16 {
 	
-	infile using "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/h`i'sta/H`i'G_R.dct"
+	infile using "$data_path/HRS_Raw/h`i'sta/H`i'G_R.dct"
 
 	rename HHID PN, lower //to match with 2018 
 
-	save "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h20`i'g_r.dta", replace
+	save "$data_path/HRS_Raw/data/h20`i'g_r.dta", replace
 
 	clear 
 	
-	infile using "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/h`i'sta/H`i'G_HP.dct"
+	infile using "$data_path/HRS_Raw/h`i'sta/H`i'G_HP.dct"
 	
 	rename HHID PN, lower 
 
-	save "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h20`i'g_hp.dta", replace 
+	save "$data_path/HRS_Raw/data/h20`i'g_hp.dta", replace 
 	
 	clear
 }
@@ -55,7 +55,7 @@ foreach i in 02 04 06 08 10 12 14 16 {
 
 foreach i in 2002 2004 2006 2008 {
 	
-	use  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_r.dta", clear 
+	use  "$data_path/HRS_Raw/data/h`i'g_r.dta", clear 
 	
 	//The ADL Anyone Else Helps Question 
 	
@@ -67,7 +67,7 @@ foreach i in 2002 2004 2006 2008 {
 	gen temp_G035_5 =. 
 	gen temp_G035_6 =.
 	
-	save  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_r.dta", replace  
+	save  "$data_path/HRS_Raw/data/h`i'g_r.dta", replace  
 	
 	clear 
 }
@@ -77,7 +77,7 @@ foreach i in 2002 2004 2006 2008 {
 
 foreach i in 2002 2004 2006 2008 2010 {
 	
-	use  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_r.dta", clear 
+	use  "$data_path/HRS_Raw/data/h`i'g_r.dta", clear 
 	//The IADL Anyone Else Helps Question 
 	
     capture drop temp_G057_1 temp_G057_2 temp_G057_3 temp_G057_4 temp_G057_5
@@ -88,7 +88,7 @@ foreach i in 2002 2004 2006 2008 2010 {
 	gen temp_G057_4=.
 	gen temp_G057_5=.
 	
-	save  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_r.dta", replace  
+	save  "$data_path/HRS_Raw/data/h`i'g_r.dta", replace  
 	
 }
 
@@ -98,18 +98,11 @@ foreach i in 2002 2004 2006 2008 2010 {
 
 //The 2018 variables are all lower case, which usually doesn't matter, but the link id variables need to be converted to upper first /////
 
-use  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/h18sta/h18g_hp.dta", clear //use original file 
+use  "$data_path/HRS_Raw/h18sta/h18g_hp.dta", clear //use original file 
 
 rename *ndx, upper
 
-save  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h2018g_hp.dta", replace //generate new file
-
-
-
-use  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/h18sta/h18g_r.dta", clear //use original file 
-
-save  "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h2018g_r.dta", replace //generate new file
-
+save  "$data_path/HRS_Raw/data/h2018g_hp.dta", replace //generate new file
 
 
 

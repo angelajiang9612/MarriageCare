@@ -32,7 +32,7 @@ clear
 
 foreach i in 2002 2004 2006 2008 2010 2012 2014 2016 2018 {
 	set maxvar 10000 // default is 5000
-	use "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_r.dta", clear
+	use "$data_path/HRS_Raw/data/h`i'g_r.dta", clear
 	
 	//keep the variables we are interested 
 	keep hhid pn *G032_1 *G033_1 *G035_1 *G032_2 *G033_2 *G035_2 *G032_3 *G033_3 *G035_3 *G032_4 *G033_4 *G035_4  *G032_5  *G033_5 *G035_5  *G032_6 *G033_6 *G035_6 *G032_7 *G033_7 *G054_1  *G055_1  *G057_1 *G054_2 *G055_2 *G057_2 *G054_3 *G055_3 *G057_3 *G054_4 *G055_4 *G057_4 *G054_5 *G055_5  *G057_5 *G054_6 *G055_6 *G062_1 *G063_1 *G097 *G098M1 *G098M2 *G098M3 *G098M4 
@@ -97,7 +97,7 @@ foreach i in 2002 2004 2006 2008 2010 2012 2014 2016 2018 {
 	
 	gen Wave = (`i'-1990)/2
 	gen Year = `i'
-	save "/Users/bubbles/Desktop/MarriageCare/Data/temp/HRS_g_r_Wave`i'.dta", replace //save with per wave name 
+	save "$data_path/temp/HRS_g_r_Wave`i'.dta", replace //save with per wave name 
 	clear 
 }
 
@@ -108,7 +108,7 @@ clear
 
 foreach i in 2002 2004 2006 2008 2010 2012 2014 2016 2018 {
 	set maxvar 10000 // default is 5000
-	use "/Users/bubbles/Desktop/MarriageCare/Data/HRS_Raw/data/h`i'g_hp.dta", clear
+	use "$data_path/HRS_Raw/data/h`i'g_hp.dta", clear
 	
 	//keep the variables we are interested 
 	keep hhid pn *G069 *G066  *ADLNDX *MNYNDX *G070 *G071 *G072 *G073 *G074 *G076 *G077 *G078 *G079 *G080 *G081 *G082
@@ -138,7 +138,7 @@ foreach i in 2002 2004 2006 2008 2010 2012 2014 2016 2018 {
 	
 	gen Wave = (`i'-1990)/2
 	gen Year = `i'
-	save "/Users/bubbles/Desktop/MarriageCare/Data/temp/HRS_g_hp_Wave`i'.dta", replace //save with per wave name 
+	save "$data_path/temp/HRS_g_hp_Wave`i'.dta", replace //save with per wave name 
 	clear 
 }
 
@@ -150,12 +150,12 @@ clear
 
 foreach i in 2002 2004 2006 2008 2010 2012 2014 2016 2018 {
 	set maxvar 10000 // default is 5000
-	use "/Users/bubbles/Desktop/MarriageCare/Data/temp/HRS_g_r_Wave`i'.dta"
+	use "$data_path/temp/HRS_g_r_Wave`i'.dta"
 	
-	merge 1:m hhidpn hhid pn using "/Users/bubbles/Desktop/MarriageCare/Data/temp/HRS_g_hp_Wave`i'.dta", force //1:m match because multiple helpers for one person in one wave is possible. Many not matched from master because not everyone has a helper and a helper file, no not matched from using because they have to be in the main dataset to have a helper section. 
+	merge 1:m hhidpn hhid pn using "$data_path/temp/HRS_g_hp_Wave`i'.dta", force //1:m match because multiple helpers for one person in one wave is possible. Many not matched from master because not everyone has a helper and a helper file, no not matched from using because they have to be in the main dataset to have a helper section. 
 	
 	drop _merge 
-	save "/Users/bubbles/Desktop/MarriageCare/Data/temp/HRS_g_Wave`i'.dta", replace //save with per wave name 
+	save "$data_path/temp/HRS_g_Wave`i'.dta", replace //save with per wave name 
 	
 	clear 
 }
@@ -165,12 +165,12 @@ foreach i in 2002 2004 2006 2008 2010 2012 2014 2016 2018 {
 //////////////Append all waves//////////////
 
 
-use "/Users/bubbles/Desktop/MarriageCare/Data/temp/HRS_g_Wave2002.dta", clear
+use "$data_path/temp/HRS_g_Wave2002.dta", clear
 foreach i in 2004 2006 2008 2010 2012 2014 2016 2018 {
 append using "/Users/bubbles/Desktop/MarriageCare/Data/temp/HRS_g_Wave`i'.dta", force
 }
 
-save "/Users/bubbles/Desktop/MarriageCare/Data/temp/HRS_Raw_All_Waves.dta", replace
+save "$data_path/temp/HRS_Raw_All_Waves.dta", replace
 
 
 
