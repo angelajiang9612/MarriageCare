@@ -1,0 +1,686 @@
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/bubbles/Desktop/MarriageCare/Dofiles/Output/remarriage.log
+  log type:  text
+ opened on:  30 Apr 2023, 16:44:12
+
+. 
+. use "/Users/bubbles/Desktop/MarriageCare/Data/randhrs1992_2018v2_STATA/randhrs1992_2018v2.dta", clear
+
+. 
+. 
+. /////////define the cohorts and initial waves 
+> 
+. 
+. local Ahead 1
+
+. local HRS 3 
+
+. local CODA 2
+
+. local WB 4
+
+. local EBB 5
+
+. local MBB 6 
+
+. local LBB 7 
+
+. 
+. local HRS_init 1 
+
+. local Ahead_init 2 
+
+. local CODA_init 4 
+
+. local WB_init 4
+
+. local EBB_init 7 
+
+. local MBB_init 10 
+
+. local LBB_init 13
+
+. 
+. 
+. //////////sample selection
+> 
+. keep if hacohort==3  //uses the cohorts we are interested in 
+(28,602 observations deleted)
+
+. keep if (r1agey_b>=51 & r1agey_b<=61) | (s1agey_b>=51 & s1agey_b<=61)   //At least one spouse is between 51 to 61
+(1,422 observations deleted)
+
+. keep if r1mstat==1 | r1mstat==2  & (s1mstat==1  | s1mstat==2 )  //keep if married in the first wave  
+(2,654 observations deleted)
+
+. 
+. //count 9555 people 
+. 
+. 
+. //count 4950 marriages 
+. //for us the number of people is not exactly half the amount of marriages (unlike them), it is more than half. Maybe keep if r is married and has spouse, and dele
+> te duplicates. 
+. 
+. 
+. gen reverhad=1 if r1cancre==1 | r1lunge==1 | r1hearte==1 | r1stroke==1  //respondent ever had health prob before the 1st wave
+(7,775 missing values generated)
+
+. replace reverhad=0 if reverhad==.
+(7,775 real changes made)
+
+. gen severhad=1 if s1cancre==1 | s1lunge==1 | s1hearte==1 | s1stroke==1  //spouse ever had health prob before the 1st wave
+(7,815 missing values generated)
+
+. replace severhad=0 if severhad==.
+(7,815 real changes made)
+
+. keep if reverhad!=1     & severhad!=1
+(3,110 observations deleted)
+
+. 
+. //count 3373 marriages 
+. 
+. drop if r2iwstat==5 | s2iwstat==5   //drop if dead
+(45 observations deleted)
+
+. drop if r2mstat==4 | r2mstat==5| r2mstat==6 | r2mstat==7 |  s2mstat==4 | s2mstat==5| s2mstat==6 | s2mstat==7    //drop if separated or widowed in the 2nd wave
+(116 observations deleted)
+
+. //////////////!!!!!!!!!!!!!drop missing values
+> 
+. //count 3298
+. 
+. drop if r1wthh==0   //drop if weight=0
+(18 observations deleted)
+
+. 
+. 
+. //count 3284 
+. 
+. 
+. sort hhid hhidpn
+
+. quietly by hhid :  gen dup = cond(_N==1,0,_n)
+
+. drop if dup>1
+(2,982 observations deleted)
+
+. 
+. 
+. //we always have a bit more than in their data. 
+. 
+. 
+. ////////////keep variables
+> keep hhidpn hacohort *hhid *iwstat *mstat *cancrs *lungs *hearts *stroks r1cancr r1lung r1heart r1strok s1cancr s1lung s1heart s1strok raeduc s1educ raracem s1rac
+> em r1mcurln h1atotn r1higov s1higov r1covr s1covr h1afhous ///
+> r1covs s1covs r1hiothp s1hiothp r1hiltc s1hiltc r1lifein s1lifein h1afhous h1itot r1agey_b s1agey_b rahispan s1hispan r1wthh ragender s1gender r1mrct s1mrct r1prp
+> cnt s1prpcnt *cancre  *lunge *hearte *stroke  r*cancrf ///
+> 
+
+. //keep only the variables of interest, so that it doesn't become too slow
+. 
+. 
+. ////////////prepare dataset
+> //reshape wide to long
+. reshape long r@iwstat r@mstat  r@cancrs r@lungs r@hearts r@stroks r@cancre r@lunge r@hearte r@cancrf r@stroke s@iwstat s@mstat  s@cancrs s@lungs s@hearts s@stroks
+>  s@cancre s@lunge s@hearte s@stroke , i(hhidpn) j(wave) 
+(j = 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+(variable r1cancrs not found)
+(variable r1lungs not found)
+(variable r1hearts not found)
+(variable r1stroks not found)
+(variable s1cancrs not found)
+(variable s1lungs not found)
+(variable s1hearts not found)
+(variable s1stroks not found)
+
+Data                               Wide   ->   Long
+-----------------------------------------------------------------------------
+Number of observations            3,284   ->   45,976      
+Number of variables                 345   ->   81          
+j variable (14 values)                    ->   wave
+xij variables:
+        r1iwstat r2iwstat ... r14iwstat   ->   riwstat
+           r1mstat r2mstat ... r14mstat   ->   rmstat
+        r1cancrs r2cancrs ... r14cancrs   ->   rcancrs
+           r1lungs r2lungs ... r14lungs   ->   rlungs
+        r1hearts r2hearts ... r14hearts   ->   rhearts
+        r1stroks r2stroks ... r14stroks   ->   rstroks
+        r1cancre r2cancre ... r14cancre   ->   rcancre
+           r1lunge r2lunge ... r14lunge   ->   rlunge
+        r1hearte r2hearte ... r14hearte   ->   rhearte
+        r1cancrf r2cancrf ... r14cancrf   ->   rcancrf
+        r1stroke r2stroke ... r14stroke   ->   rstroke
+        s1iwstat s2iwstat ... s14iwstat   ->   siwstat
+           s1mstat s2mstat ... s14mstat   ->   smstat
+        s1cancrs s2cancrs ... s14cancrs   ->   scancrs
+           s1lungs s2lungs ... s14lungs   ->   slungs
+        s1hearts s2hearts ... s14hearts   ->   shearts
+        s1stroks s2stroks ... s14stroks   ->   sstroks
+        s1cancre s2cancre ... s14cancre   ->   scancre
+           s1lunge s2lunge ... s14lunge   ->   slunge
+        s1hearte s2hearte ... s14hearte   ->   shearte
+        s1stroke s2stroke ... s14stroke   ->   sstroke
+-----------------------------------------------------------------------------
+
+. 
+. drop if wave>=11 //our wave years not currently comparible because we have not dropped waves withing missing covariates yet. 
+(13,136 observations deleted)
+
+. 
+. xtset hhidpn wave //set as panel 
+
+Panel variable: hhidpn (strongly balanced)
+ Time variable: wave, 1 to 10
+         Delta: 1 unit
+
+. 
+. 
+. 
+. //drop if riwstat!=1    //drop people who died
+. 
+. //onset of diseases
+. bysort hhidpn (wave): replace rcancrs=0 if _n==1 //missing are replaced as zero, why are so many missings in wave 1? 
+(3,284 real changes made)
+
+. bysort hhidpn (wave): replace scancrs=0 if _n==1
+(3,284 real changes made)
+
+. bysort hhidpn (wave): replace rlungs=0 if _n==1
+(3,284 real changes made)
+
+. bysort hhidpn (wave): replace slungs=0 if _n==1
+(3,284 real changes made)
+
+. bysort hhidpn (wave): replace rhearts=0 if _n==1
+(3,284 real changes made)
+
+. bysort hhidpn (wave): replace shearts=0 if _n==1
+(3,284 real changes made)
+
+. bysort hhidpn (wave): replace rstroks=0 if _n==1
+(3,284 real changes made)
+
+. bysort hhidpn (wave): replace sstroks=0 if _n==1
+(3,284 real changes made)
+
+. 
+. 
+. //wife illness onset
+. gen wonset=1 if ((rcancrs==1 |  rlungs==1 |  rhearts==1 |  rstroks==1) & ragender==2) | ((scancrs==1 |  slungs==1 |  shearts==1 |  sstroks==1) & s1gender==2)
+(31,686 missing values generated)
+
+. replace wonset=0 if wonset==. 
+(31,686 real changes made)
+
+. replace wonset=. if ((rcancrs==. |  rlungs==. |  rhearts==. |  rstroks==.) & ragender==2) | ((scancrs==. |  slungs==. |  shearts==. |  sstroks==.) & s1gender==2)
+(6,530 real changes made, 6,530 to missing)
+
+. //lag onset
+. bysort hhidpn (wave): gen wlagonset=wonset[_n-1]
+(8,622 missing values generated)
+
+. bysort hhidpn (wave): replace wlagonset=0 if _n==1
+(3,284 real changes made)
+
+. //husband illness onset
+. 
+. gen honset=1 if ((rcancrs==1 |  rlungs==1 |  rhearts==1 |  rstroks==1) & ragender==1) | ((scancrs==1 |  slungs==1 |  shearts==1 |  sstroks==1) & s1gender==1)
+(30,928 missing values generated)
+
+. replace honset=0 if honset==.
+(30,928 real changes made)
+
+. replace honset=. if ((rcancrs==. |  rlungs==. |  rhearts==. |  rstroks==.) & ragender==1) | ((scancrs==. |  slungs==. |  shearts==. |  sstroks==.) & s1gender==1)
+(6,530 real changes made, 6,530 to missing)
+
+. bysort hhidpn (wave): gen hlagonset=honset[_n-1]
+(8,622 missing values generated)
+
+. bysort hhidpn (wave): replace hlagonset=0 if _n==1
+(3,284 real changes made)
+
+. 
+. 
+. //once onset always onset 
+. 
+. bysort hhidpn (wave): replace hlagonset=1 if hlagonset[_n-1] ==1 
+(4,686 real changes made)
+
+. bysort hhidpn (wave): replace wlagonset=1 if wlagonset[_n-1] ==1 
+(2,636 real changes made)
+
+. 
+. 
+. 
+. //dependent variable
+. gen dead=1 if rmstat==4 | rmstat==5 | rmstat==6 //separated
+(32,349 missing values generated)
+
+. replace dead=2 if rmstat==7     // widowed
+(1,528 real changes made)
+
+. replace dead=2 if (remstat==1 | remstat==2) & riwstat==5        //own death 
+(450 real changes made)
+
+. bysort hhidpn (wave): replace dead=dead[_n-1] if dead[_n-1]!=.
+(1,975 real changes made)
+
+. bysort hhidpn (wave): drop if dead[_n-1]!=. & dead[_n]!=. //this drops periods after the thing changes to a number 
+(3,337 observations deleted)
+
+. 
+. gen flag=1 if (riwstat!=1 | siwstat!=1) & dead==.  //if either of spouses dead or not responsive and dropped from sample create flag from that wave onwards. Howev
+> er some of these should be treated as censored rather than dropped. This should be alright if only the missing waves are dropped, so that dead is still 0 and the 
+> waves without missing info remains 
+(24,106 missing values generated)
+
+. bysort hhidpn (wave): replace flag=flag[_n-1] if flag[_n-1]==1
+(2,903 real changes made)
+
+. drop if flag==1 //drop waves dead or non-responsive    ///this drop is big 8300, probably indicates attrition. 
+(8,300 observations deleted)
+
+. replace dead=0 if dead==. //the rest should have marriage intact
+(20,463 real changes made)
+
+. 
+. 
+. 
+. 
+. //respondent status
+. gen respondent=1 if riwstat==1 & siwstat==1 //why do we need this
+(739 missing values generated)
+
+. replace respondent=0 if respondent==.
+(739 real changes made)
+
+. //bysort hhidpn (wave): drop if respondent[_n]==0 & rmstat<=3
+. 
+. //choose the functional form for the baseline hazard function
+. gen wave2=wave^2
+
+. 
+. ///////////gen covariates
+> 
+. //baseline covariates
+. 
+. 
+. //husband and wife's age 
+. 
+. gen h1age=r1agey if ragender==1
+(7,864 missing values generated)
+
+. replace h1age=s1agey if s1gender==1 
+(7,864 real changes made)
+
+. gen w1age=r1agey if ragender==2
+(13,339 missing values generated)
+
+. replace w1age=s1agey if s1gender==2 
+(13,339 real changes made)
+
+. 
+. 
+. gen rcollege=1 if raeduc==4 | raeduc==5
+(12,153 missing values generated)
+
+. replace rcollege=0 if rcollege==.  //potential issue with missing variables
+(12,153 real changes made)
+
+. gen scollege=1 if s1educ==4 | s1educ==5 
+(12,882 missing values generated)
+
+. replace scollege=0 if scollege==.       //education
+(12,882 real changes made)
+
+. 
+. 
+. //convert to husband and wife education
+. gen hcollege =1 if (rcollege==1 & ragender==1) | (scollege==1 & s1gender==1)
+(12,137 missing values generated)
+
+. replace hcollege =0 if hcollege==.
+(12,137 real changes made)
+
+. gen wcollege =1 if (rcollege==1 & ragender==2) | (scollege==1 & s1gender==2)
+(12,898 missing values generated)
+
+. replace wcollege =0 if wcollege==.
+(12,898 real changes made)
+
+. 
+. 
+. gen rrace=0 if rahispan==0 & raracem==1
+(4,528 missing values generated)
+
+. replace rrace=1 if rrace==. //probably should control for missing 
+(4,528 real changes made)
+
+. gen srace=0 if s1hispan==0 & s1racem==1
+(4,535 missing values generated)
+
+. replace srace=1 if srace==.     
+(4,535 real changes made)
+
+. 
+. //convert to husband race 
+. gen hrace =rrace if ragender==1
+(7,864 missing values generated)
+
+. replace hrace=srace if ragender==2
+(7,864 real changes made)
+
+. 
+. 
+. 
+. 
+. gen mduration=1 if r1mcurln<10
+(18,992 missing values generated)
+
+. replace mduration=0 if r1mcurln>=10     //marital duration
+(18,992 real changes made)
+
+. 
+. 
+. 
+. gen age_difft=r1agey_b-s1agey_b if ragender==1 //age difference:hus-wife
+(7,864 missing values generated)
+
+. replace age_difft=s1agey_b-r1agey_b     if ragender==2
+(7,864 real changes made)
+
+. gen age_diff=1 if age_difft<=-11
+(21,057 missing values generated)
+
+. replace age_diff=2 if age_difft<=-5 & age_difft>=-10
+(638 real changes made)
+
+. replace age_diff=3 if age_difft<=-3 & age_difft>=-4
+(611 real changes made)
+
+. replace age_diff=4 if age_difft<=2 & age_difft>=-2      //base
+(7,198 real changes made)
+
+. replace age_diff=5 if age_difft>=3 & age_difft<=4
+(4,420 real changes made)
+
+. replace age_diff=6 if age_difft<=10 & age_difft>=5
+(6,114 real changes made)
+
+. replace age_diff=7 if age_difft>=11
+(2,076 real changes made)
+
+. 
+. 
+. 
+. gen remar=1 if r1mrct>1 | s1mrct>1
+(14,226 missing values generated)
+
+. replace remar=0 if remar==.  //remarriage
+(14,226 real changes made)
+
+. 
+. xtile incomec = h1itot, nq(5)   
+
+. replace incomec=incomec-1       //quintile of income 
+(21,203 real changes made)
+
+. 
+. gen assetc=0 if h1atotn<0
+(20,380 missing values generated)
+
+. replace assetc=1 if h1atotn>=0 & h1atotn<=50000 //base
+(9,265 real changes made)
+
+. replace assetc=2 if h1atotn>50000 & h1atotn<100000      
+(3,434 real changes made)
+
+. replace assetc=3 if h1atotn>=100000 & h1atotn<250000
+(3,852 real changes made)
+
+. replace assetc=4 if h1atotn>=250000     //non-housing asset
+(3,829 real changes made)
+
+. 
+. //whether covered by insurance
+. gen r1pinsure=1 if r1prpcnt>0 //private insurance 
+(2,943 missing values generated)
+
+. replace r1pinsure=0 if r1prpcnt==0
+(2,943 real changes made)
+
+. gen s1pinsure=1 if s1prpcnt>0
+(3,570 missing values generated)
+
+. replace s1pinsure=0 if s1prpcnt==0
+(3,570 real changes made)
+
+. gen rinsure_ind=1 if r1higov==1 | r1pinsure==1 | r1covr==1 | r1covs==1 | r1hiothp==1 | r1hiltc==1 | r1lifein==1 //couldn't find in the article types of insuranc
+(1,343 missing values generated)
+
+. replace rinsure=0 if rinsure==. //could have some issues, implies if missing then no insurance, could just be missing insurance section. 
+(1,343 real changes made)
+
+. gen sinsure_ind=1 if s1higov==1 | s1pinsure==1 | s1covr==1 | s1covs==1 | s1hiothp==1 | s1hiltc==1 | s1lifein==1
+(1,448 missing values generated)
+
+. replace sinsure=0 if sinsure==.
+(1,448 real changes made)
+
+. //gen insure=1 if rinsure==1 & sinsure==1 
+. //replace insure=0 if insure==. //both covered by health insurance
+. 
+. 
+. //changed to husband and wife 
+. 
+. gen hinsure =1 if (rinsure==1 & ragender==1) | (sinsure==1 & s1gender==1)
+(1,092 missing values generated)
+
+. replace hinsure =0 if hinsure==. 
+(1,092 real changes made)
+
+. gen winsure =1 if (rinsure==1 & ragender==2) | (sinsure==1 & s1gender==2)
+(1,699 missing values generated)
+
+. replace winsure =0 if winsure==. 
+(1,699 real changes made)
+
+. 
+. 
+. //Home Ownership 
+. 
+. gen hownhome=0 if h1afhous==6 //assuming no asset means not home owners 
+(19,115 missing values generated)
+
+. replace hownhome=1 if missing(hownhome)
+(19,115 real changes made)
+
+. 
+. 
+. 
+. mlogit dead wlagonset hlagonset rcollege rrace ib4.age_diff incomec ib1.assetc rinsure sinsure remar wave wave2 [pweight=r1wthh], nolog baseoutcome(0)
+
+Multinomial logistic regression                         Number of obs = 21,203
+                                                        Wald chi2(40) = 866.89
+                                                        Prob > chi2   = 0.0000
+Log pseudolikelihood = -7514616.6                       Pseudo R2     = 0.1211
+
+------------------------------------------------------------------------------
+             |               Robust
+        dead | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+0            |  (base outcome)
+-------------+----------------------------------------------------------------
+1            |
+   wlagonset |   .3425287   .3556969     0.96   0.336    -.3546244    1.039682
+   hlagonset |  -.4665471   .3726103    -1.25   0.211     -1.19685    .2637557
+    rcollege |   .3969628   .2693982     1.47   0.141     -.131048    .9249736
+       rrace |  -.1334194   .2972277    -0.45   0.654    -.7159749    .4491362
+             |
+    age_diff |
+          1  |   .2017502   1.049892     0.19   0.848       -1.856    2.259501
+          2  |   1.231417    .475822     2.59   0.010     .2988231    2.164011
+          3  |  -.1430346   .7839211    -0.18   0.855    -1.679492    1.393422
+          5  |    .627176   .3861615     1.62   0.104    -.1296866    1.384039
+          6  |   .7453011   .3358559     2.22   0.026     .0870356    1.403567
+          7  |    1.18899   .4065213     2.92   0.003     .3922226    1.985757
+             |
+     incomec |    .067896   .1112497     0.61   0.542    -.1501495    .2859415
+             |
+      assetc |
+          0  |  -.5294506   .5548536    -0.95   0.340    -1.616944    .5580425
+          2  |   -.075776   .3249188    -0.23   0.816     -.712605     .561053
+          3  |  -.6691346   .3795813    -1.76   0.078      -1.4131    .0748311
+          4  |  -1.215457   .4106694    -2.96   0.003    -2.020354   -.4105593
+             |
+ rinsure_ind |  -.5100229   .4634782    -1.10   0.271    -1.418424    .3983777
+ sinsure_ind |  -1.002398   .4771494    -2.10   0.036    -1.937594   -.0672028
+       remar |   .8583584   .2760792     3.11   0.002     .3172532    1.399464
+        wave |   .7497497   .2002567     3.74   0.000     .3572539    1.142246
+       wave2 |   -.068193   .0227546    -3.00   0.003    -.1127911   -.0235948
+       _cons |  -6.683994   .5967967   -11.20   0.000    -7.853694   -5.514294
+-------------+----------------------------------------------------------------
+2            |
+   wlagonset |   .7063621   .1101133     6.41   0.000     .4905439    .9221802
+   hlagonset |   1.031669   .0999262    10.32   0.000     .8358169     1.22752
+    rcollege |  -.0451335   .1047685    -0.43   0.667    -.2504759    .1602089
+       rrace |   .1256822   .1117302     1.12   0.261    -.0933049    .3446692
+             |
+    age_diff |
+          1  |  -.6238405   .7027627    -0.89   0.375     -2.00123    .7535491
+          2  |    .444987   .2466005     1.80   0.071    -.0383412    .9283152
+          3  |   .1454469   .2742108     0.53   0.596    -.3919964    .6828902
+          5  |   .2780709   .1256738     2.21   0.027     .0317547    .5243871
+          6  |    .246759   .1189462     2.07   0.038     .0136287    .4798892
+          7  |   .4557713   .1692114     2.69   0.007      .124123    .7874195
+             |
+     incomec |  -.2028638   .0417303    -4.86   0.000    -.2846538   -.1210739
+             |
+      assetc |
+          0  |  -.2035669   .2367806    -0.86   0.390    -.6676483    .2605146
+          2  |   .0477746   .1304476     0.37   0.714    -.2078981    .3034473
+          3  |  -.0591903   .1330512    -0.44   0.656    -.3199658    .2015852
+          4  |  -.3147688   .1472152    -2.14   0.033    -.6033053   -.0262324
+             |
+ rinsure_ind |  -.0682161   .1995384    -0.34   0.732    -.4593043    .3228721
+ sinsure_ind |  -.0539826   .1897127    -0.28   0.776    -.4258126    .3178475
+       remar |   .0507574   .1059533     0.48   0.632    -.1569072     .258422
+        wave |    .608052   .0704981     8.63   0.000     .4698783    .7462258
+       wave2 |  -.0324799   .0059421    -5.47   0.000    -.0441261   -.0208336
+       _cons |  -5.844258   .2975961   -19.64   0.000    -6.427535    -5.26098
+------------------------------------------------------------------------------
+
+. 
+end of do-file
+
+. do "/var/folders/qm/3srmvfy90vv8qv2rzzs5zkq40000gn/T//SD00360.000000"
+
+. 
+. mlogit dead wave wave2 hlagonset wlagonset h1age w1age hcollege hrace remar mduration hinsure winsure ib0.incomec ib1.assetc hownhome ib4.age_diff [pweight=r1wthh
+> ], nolog baseoutcome(0)
+
+Multinomial logistic regression                         Number of obs = 21,203
+                                                        Wald chi2(54) = 938.79
+                                                        Prob > chi2   = 0.0000
+Log pseudolikelihood = -7393622.1                       Pseudo R2     = 0.1352
+
+------------------------------------------------------------------------------
+             |               Robust
+        dead | Coefficient  std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+0            |  (base outcome)
+-------------+----------------------------------------------------------------
+1            |
+        wave |   .7608159    .202703     3.75   0.000     .3635254    1.158106
+       wave2 |  -.0707654   .0228955    -3.09   0.002    -.1156397   -.0258911
+   hlagonset |  -.2600107   .3858464    -0.67   0.500    -1.016256    .4962344
+   wlagonset |   .3813466   .3727263     1.02   0.306    -.3491835    1.111877
+       h1age |  -.1228206   .0518275    -2.37   0.018    -.2244007   -.0212405
+       w1age |   .0103409   .0455418     0.23   0.820    -.0789194    .0996011
+    hcollege |   .2256736   .2458149     0.92   0.359    -.2561148    .7074619
+       hrace |  -.2309308   .3150149    -0.73   0.464    -.8483487    .3864871
+       remar |   .6909958   .2902228     2.38   0.017     .1221695    1.259822
+   mduration |   .2444369   .3226518     0.76   0.449    -.3879489    .8768227
+     hinsure |  -.5281723   .5071101    -1.04   0.298     -1.52209    .4657452
+     winsure |  -.5041652   .5397717    -0.93   0.350    -1.562098     .553768
+             |
+     incomec |
+          1  |  -.0242403   .3770395    -0.06   0.949    -.7632241    .7147436
+          2  |  -.7395954   .4886397    -1.51   0.130    -1.697312    .2181208
+          3  |    .107017   .4230313     0.25   0.800    -.7221091    .9361431
+          4  |   -.098566   .4664779    -0.21   0.833    -1.012846    .8157139
+             |
+      assetc |
+          0  |  -.7320814   .5563513    -1.32   0.188     -1.82251    .3583472
+          2  |   .1804454   .3279712     0.55   0.582    -.4623664    .8232572
+          3  |  -.4753952   .3888643    -1.22   0.222    -1.237555    .2867649
+          4  |  -.7929422   .4028597    -1.97   0.049    -1.582533   -.0033517
+             |
+    hownhome |  -.9707608   .2754382    -3.52   0.000     -1.51061   -.4309119
+             |
+    age_diff |
+          1  |  -1.863125   1.643432    -1.13   0.257    -5.084193    1.357944
+          2  |   .1431771   .7051554     0.20   0.839    -1.238902    1.525256
+          3  |  -.5757114   .7966959    -0.72   0.470    -2.137207    .9857839
+          5  |   .7515443   .3935595     1.91   0.056    -.0198181    1.522907
+          6  |   1.002834   .4262084     2.35   0.019     .1674812    1.838187
+          7  |   1.468685   .8328416     1.76   0.078     -.163655    3.101024
+             |
+       _cons |   .1529798   1.527432     0.10   0.920    -2.840733    3.146692
+-------------+----------------------------------------------------------------
+2            |
+        wave |   .6123572   .0709628     8.63   0.000     .4732726    .7514418
+       wave2 |  -.0313361   .0059638    -5.25   0.000    -.0430249   -.0196473
+   hlagonset |   .9362224   .1033261     9.06   0.000      .733707    1.138738
+   wlagonset |   .6131316   .1112099     5.51   0.000     .3951642     .831099
+       h1age |   .0715699   .0316315     2.26   0.024     .0095732    .1335666
+       w1age |  -.0127589    .030798    -0.41   0.679    -.0731219    .0476042
+    hcollege |  -.1301459    .106647    -1.22   0.222    -.3391702    .0788785
+       hrace |    .089657   .1147803     0.78   0.435    -.1353082    .3146221
+       remar |   .2096124   .1117948     1.87   0.061    -.0095013    .4287261
+   mduration |  -.3724433   .1834546    -2.03   0.042    -.7320078   -.0128789
+     hinsure |  -.2713118   .2215977    -1.22   0.221    -.7056353    .1630118
+     winsure |   .1133598   .1863224     0.61   0.543    -.2518254     .478545
+             |
+     incomec |
+          1  |   -.304798   .1341074    -2.27   0.023    -.5676437   -.0419524
+          2  |   -.516044   .1457122    -3.54   0.000    -.8016347   -.2304532
+          3  |  -.4031926   .1608731    -2.51   0.012    -.7184981   -.0878871
+          4  |  -.5567753   .1872234    -2.97   0.003    -.9237264   -.1898243
+             |
+      assetc |
+          0  |  -.1472155   .2375189    -0.62   0.535    -.6127441    .3183131
+          2  |  -.0244861   .1331825    -0.18   0.854     -.285519    .2365468
+          3  |  -.1417163   .1350219    -1.05   0.294    -.4063544    .1229218
+          4  |  -.4718237   .1553733    -3.04   0.002    -.7763499   -.1672976
+             |
+    hownhome |  -.1721104   .1508914    -1.14   0.254     -.467852    .1236313
+             |
+    age_diff |
+          1  |  -.1693075   .7701136    -0.22   0.826    -1.678702    1.340087
+          2  |   .8480622   .3407808     2.49   0.013     .1801441     1.51598
+          3  |   .2567241   .3100301     0.83   0.408    -.3509237     .864372
+          5  |   .1501337   .1525225     0.98   0.325     -.148805    .4490724
+          6  |   -.024806   .2239105    -0.11   0.912    -.4636626    .4140506
+          7  |  -.0884833   .4167891    -0.21   0.832     -.905375    .7284083
+             |
+       _cons |  -8.940505   .6661711   -13.42   0.000    -10.24618   -7.634833
+------------------------------------------------------------------------------
+
+. 
+end of do-file
+
+. use "/Users/bubbles/Desktop/MarriageCare/Data/randhrs1992_2018v2_STATA/randhrs1992_2018v2.dta", clear
+
+. use "/Users/bubbles/Desktop/MarriageCare/Data/randhrs1992_2018v2_STATA/randhrs1992_2018v2.dta"
+
+. do "/var/folders/qm/3srmvfy90vv8qv2rzzs5zkq40000gn/T//SD00360.000000"
+
+. clear all
+
+. macro drop _all
+
+. 
+. cap log close 

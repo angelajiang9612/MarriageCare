@@ -191,62 +191,88 @@ cd "/Users/bubbles/Desktop/MarriageCare/Dofiles/Output"
 
 est clear
 
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week, by(ragender) c(stat) stat(mean sd) nototal 
 
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week, by(ragender) c(stat) stat(mean sd) nototal 
 
 
 esttab, main(Mean %8.2fc) nostar nonumber unstack ///
    nonote noobs label ///
    collabels(none) ///
    eqlabels("Male" "Female") /// 
-   nomtitles
-   
-   
+  
+
  
-///Conditioning on Married/cohabitating and Spouse Healthy
-
-est clear
-
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week if (rmstat==1 |rmstat==3) & s_limit ==0, by(ragender) c(stat) stat(mean sd) nototal 
-
-esttab, main(Mean %8.2fc) nostar nonumber unstack ///
-   nonote noobs label ///
-   collabels(none) ///
-   eqlabels("Male" "Female") /// 
-   nomtitles
-   
-
-
-
 /////////////////////
-//using new cohorts, post core HRS
+//Cohort Comparison 
 ////////////////////////
 
 
+//HRS Main or Before//
+
 
 est clear
 
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week if hacohort>3, by(ragender) c(stat) stat(mean sd) nototal 
-
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week  if hacohort<=3, by(ragender) c(stat) stat(mean sd) nototal 
 
 esttab, main(Mean %8.2fc) nostar nonumber unstack ///
    nonote noobs label ///
    collabels(none) ///
    eqlabels("Male" "Female") /// 
-   nomtitles
+  
+
    
    
 ///Conditioning on Married/cohabitating and Spouse Healthy
 
 est clear
 
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week if (rmstat==1 |rmstat==3) & s_limit ==0 & hacohort >3, by(ragender) c(stat) stat(mean sd) nototal 
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week  if (rmstat==1 |rmstat==3) & s_limit ==0 & hacohort <=3, by(ragender) c(stat) stat(mean sd) nototal 
 
 esttab, main(Mean %8.2fc) nostar nonumber unstack ///
    nonote noobs label ///
    collabels(none) ///
    eqlabels("Male" "Female") /// 
    nomtitles
+   
+   
+
+
+
+///Post HRS/////
+
+
+est clear
+
+
+
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week  if hacohort>3, by(ragender) c(stat) stat(mean sd) nototal 
+
+
+esttab, main(Mean %8.2fc) nostar nonumber unstack ///
+   nonote noobs label ///
+   collabels(none) ///
+   eqlabels("Male" "Female") /// 
+  
+
+   
+   
+///Conditioning on Married/cohabitating and Spouse Healthy
+
+est clear
+
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week  if (rmstat==1 |rmstat==3) & s_limit ==0 & hacohort >3, by(ragender) c(stat) stat(mean sd) nototal 
+
+esttab, main(Mean %8.2fc) nostar nonumber unstack ///
+   nonote noobs label ///
+   collabels(none) ///
+   eqlabels("Male" "Female") /// 
+   nomtitles
+   
+   
+   
+   
+ 
+
    
 
 //Severity of Limitation///
@@ -256,7 +282,7 @@ esttab, main(Mean %8.2fc) nostar nonumber unstack ///
 
 est clear
 
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week if limit_total <=2, by(ragender) c(stat) stat(mean sd) nototal 
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week if limit_total <=2, by(ragender) c(stat) stat(mean sd N) nototal 
 
 
 
@@ -272,7 +298,7 @@ esttab, main(Mean %8.2fc) nostar nonumber unstack ///
 
 est clear
 
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week if (rmstat==1 |rmstat==3) & s_limit ==0 & limit_total <=2, by(ragender) c(stat) stat(mean sd) nototal 
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week if (rmstat==1 |rmstat==3) & s_limit ==0 & limit_total <=2, by(ragender) c(stat) stat(mean sd N) nototal 
 
 esttab, main(Mean %8.2fc) nostar nonumber unstack ///
    nonote noobs label ///
@@ -288,7 +314,7 @@ esttab, main(Mean %8.2fc) nostar nonumber unstack ///
 
 est clear
 
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week if limit_total<=5 & limit_total >=3, by(ragender) c(stat) stat(mean sd) nototal 
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week if limit_total<=5 & limit_total >=3, by(ragender) c(stat) stat(mean sd N) nototal 
 
 
 
@@ -304,7 +330,7 @@ esttab, main(Mean %8.2fc) nostar nonumber unstack ///
 
 est clear
 
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week if (rmstat==1 |rmstat==3) & s_limit ==0 & limit_total<=5 & limit_total >=3, by(ragender) c(stat) stat(mean sd) nototal 
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week if (rmstat==1 |rmstat==3) & s_limit ==0 & limit_total<=5 & limit_total >=3, by(ragender) c(stat) stat(mean sd N) nototal 
 
 esttab, main(Mean %8.2fc) nostar nonumber unstack ///
    nonote noobs label ///
@@ -321,7 +347,7 @@ esttab, main(Mean %8.2fc) nostar nonumber unstack ///
 
 est clear
 
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week if limit_total>=6, by(ragender) c(stat) stat(mean sd) nototal 
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week if limit_total>=6, by(ragender) c(stat) stat(mean sd N) nototal 
 
 
 
@@ -337,7 +363,7 @@ esttab, main(Mean %8.2fc) nostar nonumber unstack ///
 
 est clear
 
-estpost tabstat any_care any_informal_care any_formal_care spouse_helped children_helped spouse_only informal_hrs_week formal_hrs_week spouse_hrs_week if (rmstat==1 |rmstat==3) & s_limit ==0 & limit_total>=6, by(ragender) c(stat) stat(mean sd) nototal 
+estpost tabstat any_care any_informal_care any_formal_care spouse_helped spouse_only spouse_hrs_week children_helped informal_hrs_week formal_hrs_week if (rmstat==1 |rmstat==3) & s_limit ==0 & limit_total>=6, by(ragender) c(stat) stat(mean sd N) nototal 
 
 esttab, main(Mean %8.2fc) nostar nonumber unstack ///
    nonote noobs label ///
@@ -349,7 +375,7 @@ esttab, main(Mean %8.2fc) nostar nonumber unstack ///
   
 
 
-
+//////Medium to Severe///
 
 
 
